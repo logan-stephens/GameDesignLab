@@ -4,23 +4,27 @@ using System.Collections.Generic;
 
 public class Block : MonoBehaviour
 {
-    private Rigidbody2D b;
-    private Animator anim;
-    private Vector2 startPos;
-    private bool hit = false;
-    private float hitTime = 0f; // DEATH TIMER COUNTDOWN THING
-
+    // unity variables (classification)
     [Header("Classification")]
     public bool isQuestionBox = true;
     public GameObject coinPrefab;
 
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
+    // private variables
+    private Rigidbody2D b;
+    private Animator anim;
+    private Vector2 startPos;
+    private bool hit = false;
+    private float hitTime = 0f; // static countdown
+    GameManager gameManager;
+
+
     void Start()
     {
         b = GetComponent<Rigidbody2D>();
         anim = GetComponent<Animator>();
         startPos = transform.position;
 
+        gameManager = GameObject.FindGameObjectWithTag("Manager").GetComponent<GameManager>();
     }
 
     private void OnTriggerEnter2D(Collider2D col)
@@ -36,15 +40,12 @@ public class Block : MonoBehaviour
     {
         Debug.Log("Bottom hit");
         if (hit) return; hit = true;
-        hitTime = Time.time; // DEATH TIMER USE CASE
+        hitTime = Time.time; // begin countdown for turning static
 
         if (coinPrefab != null) SpawnCoin(); // if block has coin spawn it
 
         if (isQuestionBox) anim.SetTrigger("hit"); // only for qblock
     }
-
-
-
 
 
     void SpawnCoin()
@@ -53,23 +54,27 @@ public class Block : MonoBehaviour
             // create coin
             GameObject coin = Instantiate(coinPrefab, transform);
             coin.transform.localPosition = Vector3.up; 
+
+            // link tool to gameManager score
+            AnimationEventIntTool tool = coin.GetComponent<AnimationEventIntTool>();
+            if (tool != null && gameManager != null) tool.useInt.AddListener(gameManager.IncreaseScore);
+
             // animate coin
             Animator coinAnim = coin.GetComponent<Animator>(); coinAnim.enabled = true;
-            
-            // ADD SOUND HERE TOO
         }
     }
 
-    public void ResetGame()
+    public void GameRestart()
     {
         hit = false;
         b.bodyType = RigidbodyType2D.Dynamic; // change body type to stop movement
         transform.position = startPos;
         b.linearVelocity = Vector2.zero;
-        if (isQuestionBox) anim.SetTrigger("ResetBlock");
+
+        // reset question boxes
+        if (isQuestionBox && anim != null) { anim.Rebind(); anim.Update(0f); }
     }
 
-    // Update is called once per frame
     void FixedUpdate()
     {
         if (isQuestionBox && hit && // a question box is hit
@@ -78,11 +83,5 @@ public class Block : MonoBehaviour
         {
             b.bodyType = RigidbodyType2D.Static; // then stop it
         }
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-        
     }
 }

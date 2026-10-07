@@ -12,6 +12,7 @@ GameObject:
   - component: {fileID: 5767400065651922417}
   - component: {fileID: 7893727960035148411}
   - component: {fileID: 439934078380974226}
+  - component: {fileID: -7304278678434405321}
   m_Layer: 0
   m_Name: BlockCoin
   m_TagString: Untagged
@@ -212,3 +213,19 @@ AudioSource:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
+--- !u!114 &-7304278678434405321
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6683708404956439569}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0e08e40f1a1844189bf0c50808c9aa36, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::AnimationEventIntTool
+  parameter: 1
+  useInt:
+    m_PersistentCalls:
+      m_Calls: []

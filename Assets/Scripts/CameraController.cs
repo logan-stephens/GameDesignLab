@@ -4,8 +4,11 @@ using UnityEngine;
 
 public class CameraController : MonoBehaviour
 {
+    // unity variables
     public Transform player; // Mario's Transform
     public Transform endLimit; // GameObject that indicates end of map
+
+    // private variables
     private float offset; // initial x-offset between Camera and Mario
     private float startX; // smallest x-coordinate of the Camera
     private float endX; // largest x-coordinate of the Camera
