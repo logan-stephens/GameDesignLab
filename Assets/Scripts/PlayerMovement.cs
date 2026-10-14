@@ -2,22 +2,32 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using TMPro;
+using UnityEngine.SceneManagement; // enables mario transform reset
 
-public class PlayerMovement : MonoBehaviour
+public class PlayerMovement : MonoBehaviour, IPowerupApplicable
 {
     // unity variables
-    public float speed = 10;
-    public float maxSpeed = 20;
-    public float upSpeed = 10;
-    
-    public Animator marioAnimator;
+    // public float speed = 10;
+    // public float maxSpeed = 20;
+    // public float upSpeed = 10;
+    // public float deathImpulse = 15;
 
+    // revamping said unity variables?
+    public GameConstants gameConstants;
+    float deathImpulse;
+    float upSpeed;
+    float maxSpeed;
+    float speed;
+    
+
+
+    
+
+    public Animator marioAnimator;
     public AudioSource marioAudio;
     public AudioSource marioDeathAudio;
+    public AudioSource backgroundMusic;
     public AudioClip marioDeath;
-    public float deathImpulse = 15;
-
-    public GameManager gameManager;
     public Transform gameCamera;
 
     
@@ -39,15 +49,34 @@ public class PlayerMovement : MonoBehaviour
 
 
     // called by AnimationEvent in mario-die
-    void GameOverScene() { gameManager.GameOver(); }
+    void GameOverScene() { GameManager.instance.GameOver(); }
+
+    void Awake() {
+        GameManager.instance.gameRestart.AddListener(GameRestart);
+    }
 
 
     void Start(){
+        // set constants NEW ADDITION
+        speed = gameConstants.speed;
+        maxSpeed = gameConstants.maxSpeed;
+        deathImpulse = gameConstants.deathImpulse;
+        upSpeed = gameConstants.upSpeed;
+        // end of setting constants NEW ADDITION
+
         marioSprite = GetComponent<SpriteRenderer>();
         marioBody = GetComponent<Rigidbody2D>();
         marioAnimator.SetBool("onGround", onGroundState);
 
         Application.targetFrameRate =  30; // 30 FPS
+        // SceneManager.activeSceneChanged += SetStartingPosition; // subscribe to scene manager scene change
+    }
+
+    public void SetStartingPosition(Scene current, Scene next)
+    {
+        if (next.name == "World-1-2") {
+            this.transform.position = new Vector3(-8.0f, -4.35f, 0.0f);
+        }
     }
     
     void Update()
@@ -151,6 +180,8 @@ public class PlayerMovement : MonoBehaviour
         if (!alive) return;
 
         alive = false;
+        if (backgroundMusic != null) backgroundMusic.Stop();
+
         marioAnimator.Play("mario-die");
         marioDeathAudio.PlayOneShot(marioDeath);
     }
@@ -167,8 +198,15 @@ public class PlayerMovement : MonoBehaviour
     
     public void GameRestart()
     {
+        Debug.Log("PlayerMovement GameRestart called");
+        // reset music
+        if (backgroundMusic != null) backgroundMusic.Play();
+
         // reset position
         marioBody.transform.position = new Vector3(-5.33f, -4.69f, 0.0f);
+
+        // reset modified constants (from power ups)
+        upSpeed = gameConstants.upSpeed;
 
         // reset sprite direction
         faceRightState = true; marioSprite.flipX = false;
@@ -180,4 +218,15 @@ public class PlayerMovement : MonoBehaviour
         // reset camera position
         gameCamera.position = new Vector3(0, 0, -10);
     }    
+
+    public void RequestPowerupEffect(IPowerup i)
+    {
+        i.ApplyPowerup(this);
+    }
+
+    public void ActivateMushroom()
+    {
+        upSpeed *= 1.5f;
+        Debug.Log("Mario should now jump VERY high");
+    }
 }

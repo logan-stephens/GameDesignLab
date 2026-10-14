@@ -15,7 +15,6 @@ public class Block : MonoBehaviour
     private Vector2 startPos;
     private bool hit = false;
     private float hitTime = 0f; // static countdown
-    GameManager gameManager;
 
 
     void Start()
@@ -23,8 +22,6 @@ public class Block : MonoBehaviour
         b = GetComponent<Rigidbody2D>();
         anim = GetComponent<Animator>();
         startPos = transform.position;
-
-        gameManager = GameObject.FindGameObjectWithTag("Manager").GetComponent<GameManager>();
     }
 
     private void OnTriggerEnter2D(Collider2D col)
@@ -57,7 +54,7 @@ public class Block : MonoBehaviour
 
             // link tool to gameManager score
             AnimationEventIntTool tool = coin.GetComponent<AnimationEventIntTool>();
-            if (tool != null && gameManager != null) tool.useInt.AddListener(gameManager.IncreaseScore);
+            if (tool != null && GameManager.instance != null) tool.useInt.AddListener(GameManager.instance.IncreaseScore);
 
             // animate coin
             Animator coinAnim = coin.GetComponent<Animator>(); coinAnim.enabled = true;
